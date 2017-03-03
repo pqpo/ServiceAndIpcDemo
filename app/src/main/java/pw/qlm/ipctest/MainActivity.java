@@ -47,6 +47,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     };
 
+    //夸进程监听器也是一个Binder,简单的接口没有夸进程的能力
     private IOnProgramListChangedListener mListener = new IOnProgramListChangedListener.Stub() {
         @Override
         public void onChanged(String method, Program program) throws RemoteException {
@@ -221,6 +222,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         startService(programServiceIntent);
     }
 
+    //远程调用为耗时操作
     private void remoteAdd(final String programName) {
         new Thread(){
             @Override
@@ -235,6 +237,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }.start();
     }
 
+    //远程调用为耗时操作
     private void remoteRemove(final String programName) {
         new Thread(){
             @Override
@@ -249,6 +252,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }.start();
     }
 
+    //远程调用为耗时操作
     private void remoteRefresh() {
         new Thread(){
             @Override

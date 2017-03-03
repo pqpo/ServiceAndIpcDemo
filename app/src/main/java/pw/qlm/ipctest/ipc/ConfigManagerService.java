@@ -10,7 +10,6 @@ import android.util.Log;
 /**
  * Created by Administrator on 2017/3/2.
  */
-
 public class ConfigManagerService extends Service {
 
     private static final String TAG = "IPC/ConfigService";

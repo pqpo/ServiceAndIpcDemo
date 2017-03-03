@@ -9,9 +9,9 @@ import android.os.Parcel;
 import android.os.RemoteException;
 
 /**
+ * 不使用aidl
  * Created by Administrator on 2017/3/2.
  */
-
 public class ConfigManagerImpl extends Binder implements IConfigManager {
 
     private static final java.lang.String DESCRIPTOR = "pw.qlm.ipctest.ipc.ConfigManagerImpl";
@@ -41,7 +41,7 @@ public class ConfigManagerImpl extends Binder implements IConfigManager {
 
     @Override
     protected boolean onTransact(int code, Parcel data, Parcel reply, int flags) throws RemoteException {
-        //鉴权
+        //鉴权,同时判断权限与package name,返回FALSE，则该次远程调用会失败
         if (mContext.checkCallingOrSelfPermission("qw.qlm.ipctest.PERMISSION_CALL_REMOTE_SERVICE") == PackageManager.PERMISSION_DENIED) {
             return false;
         }

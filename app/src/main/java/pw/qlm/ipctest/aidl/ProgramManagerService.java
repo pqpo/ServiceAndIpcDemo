@@ -24,6 +24,7 @@ public class ProgramManagerService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         Log.i(TAG, "onBind");
+        //鉴权，防止任意客户端调用
         if (checkCallingOrSelfPermission("qw.qlm.ipctest.PERMISSION_CALL_REMOTE_SERVICE") == PackageManager.PERMISSION_DENIED) {
             return null;
         }
@@ -46,6 +47,7 @@ public class ProgramManagerService extends Service {
     public void onCreate() {
         super.onCreate();
         Log.i(TAG, "onCreate");
+        //耗时操作需要在新线程中调用
         new Thread() {
             @Override
             public void run() {
@@ -61,6 +63,8 @@ public class ProgramManagerService extends Service {
         }.start();
     }
 
+    //onBind 与 onUnbind 只会被调用过一次;
+    // 返回true, 重新绑定的时候会回调onRebind();
     @Override
     public boolean onUnbind(Intent intent) {
         Log.i(TAG, "onUnbind");
