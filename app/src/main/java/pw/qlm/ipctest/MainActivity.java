@@ -22,6 +22,8 @@ import android.widget.Toast;
 
 import java.util.List;
 
+import pw.qlm.ipctest.aidl.BinderPoolImpl;
+import pw.qlm.ipctest.aidl.BinderPoolService;
 import pw.qlm.ipctest.aidl.ProgramManagerService;
 import pw.qlm.ipctest.ipc.ConfigManagerImpl;
 import pw.qlm.ipctest.ipc.ConfigManagerService;
@@ -65,6 +67,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Log.i(TAG, iConfigManager.getValue());
                 iConfigManager.setValue("set in MainActivity!");
                 Log.i(TAG, iConfigManager.getValue());
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+
+        }
+    };
+
+    private ServiceConnection mBinderPoolConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            IBinderPool iBinderPool = IBinderPool.Stub.asInterface(service);
+            try {
+                IBinder iBinder = iBinderPool.query(BinderPoolImpl.PROGRAM_MANAGER);
+                IProgramManager iProgramManager = IProgramManager.Stub.asInterface(iBinder);
+                iProgramManager.addProgram("Java");
+                Log.i(TAG, iProgramManager.getProgramList().toString());
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
@@ -131,8 +153,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         emptyView.setText("empty");
         lvPrograms.setEmptyView(emptyView);
 
+        //测试不使用AIDL的binder
         Intent configServiceIntent = new Intent(this, ConfigManagerService.class);
         bindService(configServiceIntent, mConfigServiceConnection, Context.BIND_AUTO_CREATE);
+
+        //测试binder连接池，一个Service对应多个binder
+        Intent binderPollServiceIntent = new Intent(this, BinderPoolService.class);
+        bindService(binderPollServiceIntent, mBinderPoolConnection, Context.BIND_AUTO_CREATE);
+
     }
 
     private void bindToService() {
@@ -149,6 +177,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Log.i(TAG, "connect success!");
                 toast("connect success!");
                 try {
+                    mProgramManager.asBinder().linkToDeath(mDeathRecipient, 0);
                     mProgramManager.registerOnProgramListChangedListener(mListener);
                 } catch (RemoteException e) {
                     e.printStackTrace();
@@ -310,6 +339,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             e.printStackTrace();
         }
         unbindProgramService();
+        unbindService(mBinderPoolConnection);
         unbindService(mConfigServiceConnection);
         Log.i(TAG, "unbind ConfigManagerService");
         super.onDestroy();

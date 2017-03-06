@@ -22,6 +22,9 @@
             </intent-filter>
         </activity>
 
+        <service android:name=".aidl.BinderPoolService"
+            android:process=":remote"/>
+
         <service android:name=".aidl.ProgramManagerService"
             android:process=":program"/>
 
